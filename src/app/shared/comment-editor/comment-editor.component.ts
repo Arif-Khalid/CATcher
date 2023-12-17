@@ -94,6 +94,21 @@ export class CommentEditorComponent implements OnInit {
     );
   }
 
+  deleteFile(uploadedFileToDelete: UploadedFile) {
+    console.log('Deleting ', uploadedFileToDelete.displayName);
+    this.uploadedFiles = this.uploadedFiles.filter((file) => file !== uploadedFileToDelete);
+  }
+
+  onSubmit() {
+    for (let file of this.uploadedFiles) {
+      if (this.uploadService.isVideoFile(file.displayName)) {
+        insertUploadUrlVideo(file.displayName, file.url, this.commentField, this.commentTextArea);
+      } else {
+        insertUploadUrl(file.displayName, file.url, this.commentField, this.commentTextArea);
+      }
+    }
+  }
+
   onKeyPress(event: KeyboardEvent) {
     if (UndoRedo.isUndo(event)) {
       event.preventDefault();

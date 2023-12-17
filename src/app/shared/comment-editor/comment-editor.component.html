@@ -1,4 +1,4 @@
-<form [formGroup]="commentForm" style="min-height: 350px">
+<form [formGroup]="commentForm" style="min-height: 350px" (ngSubmit)="onSubmit()">
   <mat-tab-group class="mat-elevation-z1" animationDuration="0ms" (selectedTabChange)="commentField.setValue(commentTextArea.value)">
     <mat-tab label="Write">
       <div
@@ -55,7 +55,7 @@
         </mat-form-field>
       </div>
       <div *ngFor="let file of uploadedFiles">
-        <app-uploaded-file fileName="{{ file.displayName }}"></app-uploaded-file>
+        <app-uploaded-file fileName="{{ file.displayName }}" (deleteFile)="deleteFile(file)"></app-uploaded-file>
       </div>
     </mat-tab>
 

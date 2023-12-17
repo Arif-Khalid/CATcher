@@ -8,6 +8,11 @@ import { Component, EventEmitter, Input, OnInit, Output, ViewChild, ViewContaine
 export class UploadedFileComponent implements OnInit {
   @Input() fileName: string;
   @Input() uploading = false;
+  @Output() deleteFile: EventEmitter<void> = new EventEmitter();
 
   ngOnInit(): void {}
+
+  onDelete() {
+    this.deleteFile.emit();
+  }
 }

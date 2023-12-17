@@ -46,7 +46,7 @@ export function insertUploadUrlVideo(
 ) {
   const insertedString = `<i><video controls><source src="${uploadUrl}" type="video/mp4">Your browser does not support the video tag.</video><br>video:${uploadUrl}</i>`;
 
-  replacePlaceholderString(filename, insertedString, commentField, commentTextArea);
+  appendToContent(insertedString, commentField);
 }
 
 export function insertUploadUrl(
@@ -56,7 +56,11 @@ export function insertUploadUrl(
   commentTextArea: ElementRef<HTMLTextAreaElement>
 ) {
   const insertedString = `[${filename}](${uploadUrl})`;
-  replacePlaceholderString(filename, insertedString, commentField, commentTextArea);
+  appendToContent(insertedString, commentField);
+}
+
+function appendToContent(contentToAppend: string, commentField: AbstractControl) {
+  commentField.setValue(commentField.value.concat(`${contentToAppend}\n`));
 }
 
 function replacePlaceholderString(
