@@ -6,7 +6,7 @@ import { UndoRedo } from '../../core/models/undoredo.model';
 import { ErrorHandlingService } from '../../core/services/error-handling.service';
 import { LoggingService } from '../../core/services/logging.service';
 import { FILE_TYPE_SUPPORT_ERROR, getSizeExceedErrorMsg, SUPPORTED_FILE_TYPES, UploadService } from '../../core/services/upload.service';
-import { insertContent, getContentToAppend } from './upload-text-insertor';
+import { getContentToAppend, insertContent } from './upload-text-insertor';
 import { UploadedFile } from './uploaded-file';
 
 const BYTES_PER_MB = 1024 * 1024;

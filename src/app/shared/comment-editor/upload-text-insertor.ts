@@ -1,7 +1,6 @@
 import { ElementRef } from '@angular/core';
 import { AbstractControl } from '@angular/forms';
 import { UploadedFile } from './uploaded-file';
-import { FieldsOnCorrectTypeRule } from 'graphql';
 
 export const DISPLAYABLE_CONTENT = ['gif', 'jpeg', 'jpg', 'png'];
 
@@ -56,7 +55,7 @@ function getInsertUrl(filename: string, uploadUrl: string) {
 // Get the content to append from the uploaded file array
 export function getContentToAppend(uploadedFiles: UploadedFile[]) {
   let contentToAppend = '';
-  for (let file of uploadedFiles) {
+  for (const file of uploadedFiles) {
     const fileType = file.displayName.split('.').pop();
     let prefix = '';
     if (DISPLAYABLE_CONTENT.includes(fileType.toLowerCase())) {
@@ -73,27 +72,4 @@ export function getContentToAppend(uploadedFiles: UploadedFile[]) {
 
 export function insertContent(commentField: AbstractControl, uploadedFiles: UploadedFile[]) {
   commentField.setValue(commentField.value.concat(getContentToAppend(uploadedFiles)));
-}
-
-function replacePlaceholderString(
-  filename: string,
-  insertedString: string,
-  commentField: AbstractControl,
-  commentTextArea: ElementRef<HTMLTextAreaElement>
-) {
-  const cursorPosition = commentTextArea.nativeElement.selectionEnd;
-  const insertingString = `[Uploading ${filename}...]`;
-  const startIndexOfString = commentField.value.indexOf(insertingString);
-  const endIndexOfString = startIndexOfString + insertingString.length;
-  const endOfInsertedString = startIndexOfString + insertedString.length;
-  const differenceInLength = endOfInsertedString - endIndexOfString;
-  const newCursorPosition =
-    cursorPosition > startIndexOfString - 1 && cursorPosition <= endIndexOfString // within the range of uploading text
-      ? endOfInsertedString
-      : cursorPosition < startIndexOfString // before the uploading text
-      ? cursorPosition
-      : cursorPosition + differenceInLength; // after the uploading text
-
-  commentField.setValue(commentField.value.replace(insertingString, insertedString));
-  commentTextArea.nativeElement.setSelectionRange(newCursorPosition, newCursorPosition);
 }
