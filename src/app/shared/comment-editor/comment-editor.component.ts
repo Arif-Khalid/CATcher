@@ -6,7 +6,7 @@ import { UndoRedo } from '../../core/models/undoredo.model';
 import { ErrorHandlingService } from '../../core/services/error-handling.service';
 import { LoggingService } from '../../core/services/logging.service';
 import { FILE_TYPE_SUPPORT_ERROR, getSizeExceedErrorMsg, SUPPORTED_FILE_TYPES, UploadService } from '../../core/services/upload.service';
-import { insertUploadingText, insertUploadUrl, insertUploadUrlVideo } from './upload-text-insertor';
+import { insertContent, getContentToAppend } from './upload-text-insertor';
 import { UploadedFile } from './uploaded-file';
 
 const BYTES_PER_MB = 1024 * 1024;
@@ -52,6 +52,7 @@ export class CommentEditorComponent implements OnInit {
   @Output() submitButtonTextChange: EventEmitter<string> = new EventEmitter<string>();
 
   uploadedFiles: UploadedFile[] = [];
+  previewContent: string;
 
   initialSubmitButtonText: string;
   lastUploadingTime: string;
@@ -99,14 +100,19 @@ export class CommentEditorComponent implements OnInit {
     this.uploadedFiles = this.uploadedFiles.filter((file) => file !== uploadedFileToDelete);
   }
 
-  onSubmit() {
-    for (let file of this.uploadedFiles) {
-      if (this.uploadService.isVideoFile(file.displayName)) {
-        insertUploadUrlVideo(file.displayName, file.url, this.commentField, this.commentTextArea);
-      } else {
-        insertUploadUrl(file.displayName, file.url, this.commentField, this.commentTextArea);
-      }
+  onTabChange($event) {
+    this.commentField.setValue(this.commentTextArea.nativeElement.value);
+    console.log($event.index);
+    if ($event.index === 1) {
+      // Opening the preview tab
+      const contentToAppend = getContentToAppend(this.uploadedFiles);
+      this.previewContent = this.commentField.value.concat(contentToAppend);
+      console.log(contentToAppend);
     }
+  }
+
+  onSubmit() {
+    insertContent(this.commentField, this.uploadedFiles);
   }
 
   onKeyPress(event: KeyboardEvent) {
@@ -216,7 +222,7 @@ export class CommentEditorComponent implements OnInit {
     const reader = new FileReader();
     const filename = file.name;
 
-    this.uploadedFiles.push({ displayName: filename, url: '' });
+    this.uploadedFiles.push({ displayName: filename, url: '', isVideo: this.uploadService.isVideoFile(filename) });
 
     if (file.size >= MAX_UPLOAD_SIZE) {
       this.handleUploadError(getSizeExceedErrorMsg('file', SHOWN_MAX_UPLOAD_SIZE_MB));

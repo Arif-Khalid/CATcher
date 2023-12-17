@@ -1,5 +1,7 @@
 import { ElementRef } from '@angular/core';
 import { AbstractControl } from '@angular/forms';
+import { UploadedFile } from './uploaded-file';
+import { FieldsOnCorrectTypeRule } from 'graphql';
 
 export const DISPLAYABLE_CONTENT = ['gif', 'jpeg', 'jpg', 'png'];
 
@@ -38,29 +40,31 @@ export function insertUploadingText(
   return toInsert;
 }
 
-export function insertUploadUrlVideo(
-  filename: string,
-  uploadUrl: string,
-  commentField: AbstractControl,
-  commentTextArea: ElementRef<HTMLTextAreaElement>
-) {
+function getInsertUrlVideo(uploadUrl: string) {
   const insertedString = `<i><video controls><source src="${uploadUrl}" type="video/mp4">Your browser does not support the video tag.</video><br>video:${uploadUrl}</i>`;
 
-  appendToContent(insertedString, commentField);
+  return insertedString;
 }
 
-export function insertUploadUrl(
-  filename: string,
-  uploadUrl: string,
-  commentField: AbstractControl,
-  commentTextArea: ElementRef<HTMLTextAreaElement>
-) {
+function getInsertUrl(filename: string, uploadUrl: string) {
   const insertedString = `[${filename}](${uploadUrl})`;
-  appendToContent(insertedString, commentField);
+  return insertedString;
 }
 
-function appendToContent(contentToAppend: string, commentField: AbstractControl) {
-  commentField.setValue(commentField.value.concat(`${contentToAppend}\n`));
+export function getContentToAppend(uploadedFiles: UploadedFile[]) {
+  let contentToAppend = '';
+  for (let file of uploadedFiles) {
+    if (file.isVideo) {
+      contentToAppend = contentToAppend.concat(getInsertUrlVideo(file.url) + '  \n');
+    } else {
+      contentToAppend = contentToAppend.concat(getInsertUrl(file.displayName, file.url) + '  \n');
+    }
+  }
+  return contentToAppend;
+}
+
+export function insertContent(commentField: AbstractControl, uploadedFiles: UploadedFile[]) {
+  commentField.setValue(commentField.value.concat(getContentToAppend(uploadedFiles)));
 }
 
 function replacePlaceholderString(
