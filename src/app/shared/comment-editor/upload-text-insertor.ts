@@ -54,10 +54,15 @@ function getInsertUrl(filename: string, uploadUrl: string) {
 export function getContentToAppend(uploadedFiles: UploadedFile[]) {
   let contentToAppend = '';
   for (let file of uploadedFiles) {
+    const fileType = file.displayName.split('.').pop();
+    let prefix = '';
+    if (DISPLAYABLE_CONTENT.includes(fileType.toLowerCase())) {
+      prefix = '!';
+    }
     if (file.isVideo) {
-      contentToAppend = contentToAppend.concat(getInsertUrlVideo(file.url) + '  \n');
+      contentToAppend = contentToAppend.concat(prefix + getInsertUrlVideo(file.url) + '  \n');
     } else {
-      contentToAppend = contentToAppend.concat(getInsertUrl(file.displayName, file.url) + '  \n');
+      contentToAppend = contentToAppend.concat(prefix + getInsertUrl(file.displayName, file.url) + '  \n');
     }
   }
   return contentToAppend;
