@@ -50,6 +50,8 @@ export class CommentEditorComponent implements OnInit {
   @Input() submitButtonText?: string;
   @Output() submitButtonTextChange: EventEmitter<string> = new EventEmitter<string>();
 
+  fileNames: string[] = [];
+
   initialSubmitButtonText: string;
   lastUploadingTime: string;
 

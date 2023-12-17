@@ -54,7 +54,11 @@
           </div>
         </mat-form-field>
       </div>
+      <div *ngFor="let fileName of fileNames">
+        <app-uploaded-file fileName="{{ fileName }}"></app-uploaded-file>
+      </div>
     </mat-tab>
+
     <mat-tab label="Preview">
       <div class="tab-content" style="min-height: 228px">
         <markdown #markdownArea *ngIf="commentField.value !== ''" [data]="sanitize(commentField.value)"></markdown>
