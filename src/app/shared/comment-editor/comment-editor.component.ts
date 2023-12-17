@@ -7,6 +7,7 @@ import { ErrorHandlingService } from '../../core/services/error-handling.service
 import { LoggingService } from '../../core/services/logging.service';
 import { FILE_TYPE_SUPPORT_ERROR, getSizeExceedErrorMsg, SUPPORTED_FILE_TYPES, UploadService } from '../../core/services/upload.service';
 import { insertUploadingText, insertUploadUrl, insertUploadUrlVideo } from './upload-text-insertor';
+import { UploadedFile } from './uploaded-file';
 
 const BYTES_PER_MB = 1024 * 1024;
 const SHOWN_MAX_UPLOAD_SIZE_MB = 10;
@@ -50,7 +51,7 @@ export class CommentEditorComponent implements OnInit {
   @Input() submitButtonText?: string;
   @Output() submitButtonTextChange: EventEmitter<string> = new EventEmitter<string>();
 
-  fileNames: string[] = [];
+  uploadedFiles: UploadedFile[] = [];
 
   initialSubmitButtonText: string;
   lastUploadingTime: string;
@@ -199,20 +200,21 @@ export class CommentEditorComponent implements OnInit {
     this.uploadErrorMessage = null;
     const reader = new FileReader();
     const filename = file.name;
-    const insertedText = insertUploadingText(filename, this.commentField, this.commentTextArea);
+
+    this.uploadedFiles.push({ displayName: filename, url: '' });
 
     if (file.size >= MAX_UPLOAD_SIZE) {
-      this.handleUploadError(getSizeExceedErrorMsg('file', SHOWN_MAX_UPLOAD_SIZE_MB), insertedText);
+      this.handleUploadError(getSizeExceedErrorMsg('file', SHOWN_MAX_UPLOAD_SIZE_MB));
       return;
     }
 
     if (this.uploadService.isVideoFile(filename) && file.size >= MAX_VIDEO_UPLOAD_SIZE) {
-      this.handleUploadError(getSizeExceedErrorMsg('video', SHOWN_MAX_VIDEO_UPLOAD_SIZE_MB), insertedText);
+      this.handleUploadError(getSizeExceedErrorMsg('video', SHOWN_MAX_VIDEO_UPLOAD_SIZE_MB));
       return;
     }
 
     if (!this.uploadService.isSupportedFileType(filename)) {
-      this.handleUploadError(FILE_TYPE_SUPPORT_ERROR, insertedText);
+      this.handleUploadError(FILE_TYPE_SUPPORT_ERROR);
       return;
     }
 
@@ -226,15 +228,16 @@ export class CommentEditorComponent implements OnInit {
     reader.onload = () => {
       this.uploadService.uploadFile(reader.result, filename).subscribe(
         (response) => {
-          if (this.uploadService.isVideoFile(filename)) {
-            insertUploadUrlVideo(filename, response.data.content.download_url, this.commentField, this.commentTextArea);
-          } else {
-            insertUploadUrl(filename, response.data.content.download_url, this.commentField, this.commentTextArea);
-          }
-          this.history.forceSave();
+          this.uploadedFiles[this.uploadedFiles.length - 1].url = response.data.content.download_url;
+          // if (this.uploadService.isVideoFile(filename)) {
+          //   insertUploadUrlVideo(filename, response.data.content.download_url, this.commentField, this.commentTextArea);
+          // } else {
+          //   insertUploadUrl(filename, response.data.content.download_url, this.commentField, this.commentTextArea);
+          // }
+          // this.history.forceSave();
         },
         (error) => {
-          this.handleUploadError(error, insertedText);
+          this.handleUploadError(error);
           // Allow button enabling if this is the last file that was uploaded.
           if (currentFileUploadTime === this.lastUploadingTime) {
             this.updateParentFormsSubmittability(false, this.initialSubmitButtonText);
@@ -322,14 +325,14 @@ export class CommentEditorComponent implements OnInit {
     return !!this.uploadErrorMessage;
   }
 
-  private handleUploadError(error, insertedText: string) {
+  private handleUploadError(error) {
     if (error instanceof HttpErrorResponse) {
       this.errorHandlingService.handleError(error);
       this.uploadErrorMessage = 'Something went wrong while uploading your file. Please try again.';
     } else {
       this.uploadErrorMessage = error;
     }
-    this.commentField.setValue(this.commentField.value.replace(insertedText, ''));
+    this.uploadedFiles.pop();
     this.history.forceSave();
   }
 

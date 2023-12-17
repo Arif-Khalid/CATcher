@@ -54,8 +54,8 @@
           </div>
         </mat-form-field>
       </div>
-      <div *ngFor="let fileName of fileNames">
-        <app-uploaded-file fileName="{{ fileName }}"></app-uploaded-file>
+      <div *ngFor="let file of uploadedFiles">
+        <app-uploaded-file fileName="{{ file.displayName }}"></app-uploaded-file>
       </div>
     </mat-tab>
 
