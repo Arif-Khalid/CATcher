@@ -7,7 +7,6 @@ import { ErrorHandlingService } from '../../core/services/error-handling.service
 import { IssueService } from '../../core/services/issue.service';
 import { LabelService } from '../../core/services/label.service';
 import { SUBMIT_BUTTON_TEXT } from '../../shared/view-issue/view-issue.component';
-import { CommentEditorComponent } from '../../shared/comment-editor/comment-editor.component';
 
 @Component({
   selector: 'app-new-issue',
@@ -19,7 +18,7 @@ export class NewIssueComponent implements OnInit {
   isFormPending = false;
   submitButtonText: string;
 
-  @ViewChild('commentEditor') commentEditor: CommentEditorComponent;
+  @ViewChild('commentEditor') commentEditor;
 
   constructor(
     private issueService: IssueService,
