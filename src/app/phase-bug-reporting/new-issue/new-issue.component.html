@@ -18,20 +18,25 @@
             [commentForm]="this.newIssueForm"
             [(isFormPending)]="this.isFormPending"
             [(submitButtonText)]="this.submitButtonText"
+            [(hasUploadedSupportingFile)]="this.hasUploadedSupportingFile"
           >
           </app-comment-editor>
         </div>
-
-        <button
-          style="float: right"
-          class="submit-new-bug-report"
-          type="submit"
-          mat-stroked-button
-          color="primary"
-          [disabled]="!newIssueForm.valid || isFormPending"
-        >
-          {{ this.submitButtonText }}
-        </button>
+        <div style="display: flex; align-items: center; justify-content: end">
+          <div *ngIf="!hasUploadedSupportingFile" style="display: flex; vertical-align: middle; flex-grow: 1">
+            <label for="understood">I understand and accept the risk of not uploading supporting files</label>
+            <input id="understood" type="checkbox" (change)="updateRequireUploadSupportingFile($event)" />
+          </div>
+          <button
+            class="submit-new-bug-report"
+            type="submit"
+            mat-stroked-button
+            color="primary"
+            [disabled]="!newIssueForm.valid || isFormPending || (requireUploadSupportingFile && !hasUploadedSupportingFile)"
+          >
+            {{ this.submitButtonText }}
+          </button>
+        </div>
       </div>
 
       <div class="column right">

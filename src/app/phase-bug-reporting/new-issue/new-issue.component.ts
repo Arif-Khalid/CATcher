@@ -17,6 +17,8 @@ export class NewIssueComponent implements OnInit {
   newIssueForm: FormGroup;
   isFormPending = false;
   submitButtonText: string;
+  hasUploadedSupportingFile = false;
+  requireUploadSupportingFile = true;
 
   constructor(
     private issueService: IssueService,
@@ -35,6 +37,10 @@ export class NewIssueComponent implements OnInit {
     });
 
     this.submitButtonText = SUBMIT_BUTTON_TEXT.SUBMIT;
+  }
+
+  updateRequireUploadSupportingFile(event) {
+    this.requireUploadSupportingFile = !event.target.checked;
   }
 
   submitNewIssue(form: NgForm) {
