@@ -51,7 +51,9 @@ export class CommentEditorComponent implements OnInit {
   @Input() submitButtonText?: string;
   @Output() submitButtonTextChange: EventEmitter<string> = new EventEmitter<string>();
 
+  // The files uploaded kept separate from main content
   uploadedFiles: UploadedFile[] = [];
+  // Preview content is generated including uploaded file(s) if any before preview is shown
   previewContent: string;
 
   initialSubmitButtonText: string;
@@ -111,6 +113,7 @@ export class CommentEditorComponent implements OnInit {
     }
   }
 
+  // Insert content generated from uploaded files into the
   onSubmit() {
     insertContent(this.commentField, this.uploadedFiles);
   }
@@ -250,12 +253,6 @@ export class CommentEditorComponent implements OnInit {
       this.uploadService.uploadFile(reader.result, filename).subscribe(
         (response) => {
           this.uploadedFiles[this.uploadedFiles.length - 1].url = response.data.content.download_url;
-          // if (this.uploadService.isVideoFile(filename)) {
-          //   insertUploadUrlVideo(filename, response.data.content.download_url, this.commentField, this.commentTextArea);
-          // } else {
-          //   insertUploadUrl(filename, response.data.content.download_url, this.commentField, this.commentTextArea);
-          // }
-          // this.history.forceSave();
         },
         (error) => {
           this.handleUploadError(error);

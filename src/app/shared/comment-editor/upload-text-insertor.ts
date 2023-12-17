@@ -40,17 +40,20 @@ export function insertUploadingText(
   return toInsert;
 }
 
+// Gets the markdown insertable url from the upload url for video
 function getInsertUrlVideo(uploadUrl: string) {
   const insertedString = `<i><video controls><source src="${uploadUrl}" type="video/mp4">Your browser does not support the video tag.</video><br>video:${uploadUrl}</i>`;
 
   return insertedString;
 }
 
+// Gets the markdown insertable url from the upload url for non-video files
 function getInsertUrl(filename: string, uploadUrl: string) {
   const insertedString = `[${filename}](${uploadUrl})`;
   return insertedString;
 }
 
+// Get the content to append from the uploaded file array
 export function getContentToAppend(uploadedFiles: UploadedFile[]) {
   let contentToAppend = '';
   for (let file of uploadedFiles) {
