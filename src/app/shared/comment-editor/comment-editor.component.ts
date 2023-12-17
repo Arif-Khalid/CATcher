@@ -42,6 +42,10 @@ export class CommentEditorComponent implements OnInit {
   @Input() initialDescription?: string;
   placeholderText = 'No details provided.';
 
+  // Allows the comment editor to control the boolean whether any supporting files have been uploaded
+  @Input() hasUploadedSupportingFile?: boolean;
+  @Output() hasUploadedSupportingFileChange: EventEmitter<boolean> = new EventEmitter<boolean>();
+
   // Allows the comment editor to control the overall form's completeness.
   @Input() isFormPending?: boolean;
   @Output() isFormPendingChange: EventEmitter<boolean> = new EventEmitter<boolean>();
@@ -230,6 +234,7 @@ export class CommentEditorComponent implements OnInit {
             insertUploadUrl(filename, response.data.content.download_url, this.commentField, this.commentTextArea);
           }
           this.history.forceSave();
+          this.hasUploadedSupportingFileChange.emit(true);
         },
         (error) => {
           this.handleUploadError(error, insertedText);
