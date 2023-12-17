@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { AbstractControl, FormBuilder, FormGroup, NgForm, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { finalize } from 'rxjs/operators';
@@ -17,6 +17,8 @@ export class NewIssueComponent implements OnInit {
   newIssueForm: FormGroup;
   isFormPending = false;
   submitButtonText: string;
+
+  @ViewChild('commentEditor') commentEditor;
 
   constructor(
     private issueService: IssueService,
@@ -41,6 +43,7 @@ export class NewIssueComponent implements OnInit {
     if (this.newIssueForm.invalid) {
       return;
     }
+    this.commentEditor.onSubmit();
     this.isFormPending = true;
     this.issueService
       .createIssue(this.title.value, Issue.updateDescription(this.description.value), this.severity.value, this.type.value)

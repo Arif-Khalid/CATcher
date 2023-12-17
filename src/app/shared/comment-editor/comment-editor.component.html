@@ -1,5 +1,5 @@
 <form [formGroup]="commentForm" style="min-height: 350px">
-  <mat-tab-group class="mat-elevation-z1" animationDuration="0ms" (selectedTabChange)="commentField.setValue(commentTextArea.value)">
+  <mat-tab-group class="mat-elevation-z1" animationDuration="0ms" (selectedTabChange)="onTabChange($event)">
     <mat-tab label="Write">
       <div
         #dropArea
@@ -54,11 +54,15 @@
           </div>
         </mat-form-field>
       </div>
+      <div *ngFor="let file of uploadedFiles">
+        <app-uploaded-file fileName="{{ file.displayName }}" (deleteFile)="deleteFile(file)"></app-uploaded-file>
+      </div>
     </mat-tab>
+
     <mat-tab label="Preview">
       <div class="tab-content" style="min-height: 228px">
-        <markdown #markdownArea *ngIf="commentField.value !== ''" [data]="sanitize(commentField.value)"></markdown>
-        <div *ngIf="commentField.value === ''">Nothing to preview.</div>
+        <markdown #markdownArea *ngIf="this.previewContent !== ''" [data]="sanitize(this.previewContent)"></markdown>
+        <div *ngIf="this.previewContent === ''">Nothing to preview.</div>
       </div>
     </mat-tab>
   </mat-tab-group>

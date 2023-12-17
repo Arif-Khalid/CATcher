@@ -1,5 +1,6 @@
 import { ElementRef } from '@angular/core';
 import { AbstractControl } from '@angular/forms';
+import { UploadedFile } from './uploaded-file';
 
 export const DISPLAYABLE_CONTENT = ['gif', 'jpeg', 'jpg', 'png'];
 
@@ -38,46 +39,37 @@ export function insertUploadingText(
   return toInsert;
 }
 
-export function insertUploadUrlVideo(
-  filename: string,
-  uploadUrl: string,
-  commentField: AbstractControl,
-  commentTextArea: ElementRef<HTMLTextAreaElement>
-) {
+// Gets the markdown insertable url from the upload url for video
+function getInsertUrlVideo(uploadUrl: string) {
   const insertedString = `<i><video controls><source src="${uploadUrl}" type="video/mp4">Your browser does not support the video tag.</video><br>video:${uploadUrl}</i>`;
 
-  replacePlaceholderString(filename, insertedString, commentField, commentTextArea);
+  return insertedString;
 }
 
-export function insertUploadUrl(
-  filename: string,
-  uploadUrl: string,
-  commentField: AbstractControl,
-  commentTextArea: ElementRef<HTMLTextAreaElement>
-) {
+// Gets the markdown insertable url from the upload url for non-video files
+function getInsertUrl(filename: string, uploadUrl: string) {
   const insertedString = `[${filename}](${uploadUrl})`;
-  replacePlaceholderString(filename, insertedString, commentField, commentTextArea);
+  return insertedString;
 }
 
-function replacePlaceholderString(
-  filename: string,
-  insertedString: string,
-  commentField: AbstractControl,
-  commentTextArea: ElementRef<HTMLTextAreaElement>
-) {
-  const cursorPosition = commentTextArea.nativeElement.selectionEnd;
-  const insertingString = `[Uploading ${filename}...]`;
-  const startIndexOfString = commentField.value.indexOf(insertingString);
-  const endIndexOfString = startIndexOfString + insertingString.length;
-  const endOfInsertedString = startIndexOfString + insertedString.length;
-  const differenceInLength = endOfInsertedString - endIndexOfString;
-  const newCursorPosition =
-    cursorPosition > startIndexOfString - 1 && cursorPosition <= endIndexOfString // within the range of uploading text
-      ? endOfInsertedString
-      : cursorPosition < startIndexOfString // before the uploading text
-      ? cursorPosition
-      : cursorPosition + differenceInLength; // after the uploading text
+// Get the content to append from the uploaded file array
+export function getContentToAppend(uploadedFiles: UploadedFile[]) {
+  let contentToAppend = '';
+  for (const file of uploadedFiles) {
+    const fileType = file.displayName.split('.').pop();
+    let prefix = '';
+    if (DISPLAYABLE_CONTENT.includes(fileType.toLowerCase())) {
+      prefix = '!';
+    }
+    if (file.isVideo) {
+      contentToAppend = contentToAppend.concat(prefix + getInsertUrlVideo(file.url) + '  \n');
+    } else {
+      contentToAppend = contentToAppend.concat(prefix + getInsertUrl(file.displayName, file.url) + '  \n');
+    }
+  }
+  return contentToAppend;
+}
 
-  commentField.setValue(commentField.value.replace(insertingString, insertedString));
-  commentTextArea.nativeElement.setSelectionRange(newCursorPosition, newCursorPosition);
+export function insertContent(commentField: AbstractControl, uploadedFiles: UploadedFile[]) {
+  commentField.setValue(commentField.value.concat(getContentToAppend(uploadedFiles)));
 }
